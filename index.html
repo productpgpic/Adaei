@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سامانه نظارت بر دستشویی (سَنَد)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Jalali Datepicker Library -->
+    <script src="https://cdn.jsdelivr.net/npm/persian-date@0.1.8/dist/persian-date.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css"/>
+    <!-- Font Vazirmatn -->
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Vazirmatn', sans-serif; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .datepicker-plot-area {
+            font-family: 'Vazirmatn', sans-serif !important;
+            border-radius: 1.25rem !important;
+            box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.15);
+            z-index: 9999 !important;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-100/70 via-purple-100/40 to-slate-100 text-slate-800 min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl max-w-lg w-full p-8 border border-white/80 max-h-[90vh] overflow-y-auto">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-gradient-to-tr from-indigo-600 to-violet-600 text-white rounded-2xl mx-auto flex items-center justify-center mb-4 shadow-lg shadow-indigo-500/30">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-extrabold text-slate-900">ورود به سامانه سَنَد</h2>
+                <p class="text-xs text-slate-500 mt-1 font-medium">انتخاب نقش و نحوه ورود به سامانه پایش تردد</p>
+            </div>
+
+            <div id="roleSelectionView" class="space-y-6">
+                <!-- Category 1: Service Banovan -->
+                <div>
+                    <div class="text-xs font-bold text-blue-600 mb-2 px-1 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                        مسئول ثبت آمار سرویس بانوان
+                    </div>
+                    <div class="space-y-3">
+                        <button onclick="showLoginForm('kheradmand')" class="w-full bg-blue-50/60 hover:bg-blue-100/80 text-slate-800 border border-blue-200/60 font-semibold p-4 rounded-2xl transition-all duration-200 flex items-center justify-between group shadow-sm hover:shadow-md">
+                            <div class="flex items-center gap-3.5">
+                                <div class="w-11 h-11 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center overflow-hidden shadow-sm group-hover:scale-105 transition-transform">
+                                    <span class="text-2xl">🎀</span>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-sm font-extrabold text-slate-900">ورود آقای خردمند</div>
+                                </div>
+                            </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-400 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+
+                        <button onclick="showLoginForm('nikpour')" class="w-full bg-blue-50/60 hover:bg-blue-100/80 text-slate-800 border border-blue-200/60 font-semibold p-4 rounded-2xl transition-all duration-200 flex items-center justify-between group shadow-sm hover:shadow-md">
+                            <div class="flex items-center gap-3.5">
+                                <div class="w-11 h-11 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center overflow-hidden shadow-sm group-hover:scale-105 transition-transform">
+                                    <span class="text-2xl">🐱</span>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-sm font-extrabold text-slate-900">ورود آقای نیکپور</div>
+                                </div>
+                            </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-400 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Category 2: Service Aghaian -->
+                <div>
+                    <div class="text-xs font-bold text-pink-600 mb-2 px-1 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-pink-500"></span>
+                        مسئول ثبت آمار سرویس آقایان
+                    </div>
+                    <div class="space-y-3">
+                        <button onclick="showLoginForm('mokhtari')" class="w-full bg-pink-50/60 hover:bg-pink-100/80 text-slate-800 border border-pink-200/60 font-semibold p-4 rounded-2xl transition-all duration-200 flex items-center justify-between group shadow-sm hover:shadow-md">
+                            <div class="flex items-center gap-3.5">
+                                <div class="w-11 h-11 bg-pink-100 text-pink-600 rounded-2xl flex items-center justify-center overflow-hidden shadow-sm group-hover:scale-105 transition-transform">
+                                    <span class="text-2xl">🍦</span>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-sm font-extrabold text-slate-900">ورود خانم مختاری</div>
+                                </div>
+                            </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-pink-400 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+
+                        <button onclick="showLoginForm('aminzadeh')" class="w-full bg-pink-50/60 hover:bg-pink-100/80 text-slate-800 border border-pink-200/60 font-semibold p-4 rounded-2xl transition-all duration-200 flex items-center justify-between group shadow-sm hover:shadow-md">
+                            <div class="flex items-center gap-3.5">
+                                <div class="w-11 h-11 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center overflow-hidden shadow-sm group-hover:scale-105 transition-transform">
+                                    <span class="text-2xl">🧁</span>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-sm font-extrabold text-slate-900">ورود خانم امین زاده</div>
+                                </div>
+                            </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-pink-400 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="relative flex py-1 items-center">
+                    <div class="flex-grow border-t border-slate-200"></div>
+                    <span class="flex-shrink mx-4 text-slate-400 text-xs font-semibold">یا</span>
+                    <div class="flex-grow border-t border-slate-200"></div>
+                </div>
+
+                <!-- Viewer -->
+                <button onclick="loginAsViewer()" class="w-full bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-semibold p-4 rounded-2xl transition-all flex items-center justify-center gap-2 text-sm shadow-sm">
+                    ورود به عنوان همکار (مشاهده عمومی)
+                </button>
+
+                <!-- Admin Principal at the bottom -->
+                <div class="pt-2 border-t border-slate-100">
+                    <button onclick="showLoginForm('sharifinejad')" class="w-full bg-purple-50/80 hover:bg-purple-100 text-purple-900 border border-purple-200/80 font-semibold p-4 rounded-2xl transition-all flex items-center justify-between group shadow-sm hover:shadow-md">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-11 h-11 bg-purple-100 text-purple-700 rounded-2xl flex items-center justify-center overflow-hidden shadow-sm group-hover:scale-105 transition-transform">
+                                <span class="text-2xl">🦄</span>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-extrabold text-slate-900">ادمین اصلی (خانم شریفی‌نژاد)</div>
+                                <div class="text-xs text-purple-700 font-medium">دسترسی کامل و مدیریت سیستم</div>
+                            </div>
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-500 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div id="passwordFormView" class="hidden space-y-4">
+                <div class="flex items-center justify-between mb-2">
+                    <button onclick="backToRoleSelection()" class="text-xs text-slate-500 hover:text-slate-800 font-semibold">بازگشت</button>
+                    <span id="loginTitleBadge" class="text-xs px-3 py-1 rounded-xl font-bold bg-indigo-100 text-indigo-800"></span>
+                </div>
+                <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">نام کاربری</label>
+                        <input type="text" id="loginUsername" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">رمز عبور</label>
+                        <input type="password" id="loginPassword" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div id="loginErrorMsg" class="hidden text-rose-600 text-xs font-medium text-center bg-rose-50 py-2.5 rounded-xl border border-rose-100"></div>
+                    <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold py-3.5 rounded-xl text-sm shadow-lg shadow-indigo-600/20 transition-all">ورود به پنل</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Record Modal -->
+    <div id="editModal" class="hidden fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 border border-slate-100">
+            <h3 class="font-extrabold text-lg text-slate-900 mb-4">ویرایش رکورد تردد</h3>
+            <form onsubmit="handleEditSubmit(event)" class="space-y-4">
+                <input type="hidden" id="edit-record-id">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">نام فرد</label>
+                    <input type="text" id="edit-person-name" required class="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-600" readonly>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">تعداد دفعات</label>
+                    <input type="number" min="1" id="edit-count" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="submit" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl text-sm shadow-md transition-all">ذخیره تغییرات</button>
+                    <button type="button" onclick="closeEditModal()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 rounded-xl text-sm transition-all">انصراف</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Change Password Modal for Admin Principal -->
+    <div id="passwordModal" class="hidden fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 border border-slate-100">
+            <h3 class="font-extrabold text-lg text-slate-900 mb-4">مدیریت و تغییر رمز عبور ادمین‌ها</h3>
+            <form onsubmit="handlePasswordChangeSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">انتخاب ادمین</label>
+                    <select id="target-admin-role" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="kheradmand">آقای خردمند</option>
+                        <option value="nikpour">آقای نیکپور</option>
+                        <option value="mokhtari">خانم مختاری</option>
+                        <option value="aminzadeh">خانم امین‌زاده</option>
+                        <option value="sharifinejad">خانم شریفی‌نژاد (ادمین اصلی)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">رمز عبور جدید</label>
+                    <input type="text" id="new-admin-password" required placeholder="رمز جدید را وارد کنید" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="submit" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl text-sm shadow-md transition-all">ثبت رمز جدید</button>
+                    <button type="button" onclick="closePasswordModal()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 rounded-xl text-sm transition-all">انصراف</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-indigo-700 via-violet-700 to-purple-800 text-white shadow-xl">
+        <div class="max-w-7xl mx-auto px-6 py-5 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3.5 text-center sm:text-right">
+                <span class="bg-indigo-950/80 text-indigo-200 text-xs font-extrabold px-3.5 py-2 rounded-2xl border border-indigo-400/30 shadow-inner">سَنَد</span>
+                <h1 class="text-sm md:text-base font-extrabold tracking-wide">سامانه نظارت بر دستشویی آقایان و بانوان واحد تولید طبقه چهارم</h1>
+            </div>
+            <div class="flex items-center gap-3">
+                <span id="current-user-role-text" class="text-xs font-bold bg-indigo-950/60 px-3.5 py-2 rounded-xl border border-indigo-400/20">در حال تعیین سطح...</span>
+                <button id="btn-change-pass" onclick="openPasswordModal()" class="hidden bg-indigo-600 hover:bg-indigo-500 text-white px-3.5 py-2 rounded-xl text-xs font-extrabold shadow transition-all">تغییر پسورد ⚙️</button>
+                <button onclick="logout()" class="bg-white/10 hover:bg-white/20 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all">تغییر کاربر</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-6 py-8 flex-grow w-full grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div id="sidebar-container" class="lg:col-span-1 space-y-6">
+            <!-- Card Banovan -->
+            <div id="card-banovan" class="bg-white/95 backdrop-blur-md rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 p-7 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-2.5 h-full bg-blue-500"></div>
+                <h2 id="card-title-banovan" class="font-extrabold text-slate-900 text-base mb-5 flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-blue-500"></span>
+                    ثبت آمار بانوان
+                </h2>
+                <form onsubmit="handleSubmit(event, 'banovan')" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1.5">تاریخ (شمسی)</label>
+                        <input type="text" id="date-banovan" required readonly class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm cursor-pointer font-medium focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1.5">انتخاب فرد</label>
+                        <select id="person-select-banovan" onchange="handlePersonSelectChange('banovan')" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-blue-500">
+                            <option value="خانم شریفی نژاد">خانم شریفی نژاد</option>
+                            <option value="خانم امین زاده">خانم امین زاده</option>
+                            <option value="خانم مختاری">خانم مختاری</option>
+                            <option value="خانم آذری">خانم آذری</option>
+                            <option value="custom">سایر (ورود دستی نام)...</option>
+                        </select>
+                    </div>
+                    <div id="custom-person-box-banovan" class="hidden">
+                        <label class="block text-xs font-bold text-slate-600 mb-1.5">نام و نام خانوادگی دستی</label>
+                        <input type="text" id="person-custom-banovan" placeholder="مثلاً خانم اکبری" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1.5">تعداد دفعات</label>
+                        <input type="number" min="1" id="count-banovan" value="1" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold py-3.5 rounded-2xl text-sm shadow-lg shadow-blue-500/25 transition-all">ثبت / افزایش تردد بانوان</button>
+                </form>
+            </div>
+
+            <!-- Card Aghaian -->
+            <div id="card-aghaian" class="bg-white/95 backdrop-blur-md rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 p-7 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-2.5 h-full bg-pink-500"></div>
+                <h2 id="card-title-aghaian" class="font-extrabold text-slate-900 text-base mb-5 flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-pink-500"></span>
+                    ثبت آمار آقایان
+                </h2>
+                <form onsubmit="handleSubmit(event, 'aghaian')" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1.5">تاریخ (شمسی)</label>
+                        <input type="text" id="date-aghaian" required readonly class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm cursor-pointer font-medium focus:ring-2 focus:ring-pink-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1.5">انتخاب فرد</label>
+                        <select id="person-select-aghaian" onchange="handlePersonSelectChange('aghaian')" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-pink-500">
+                            <option value="آقای خردمند">آقای خردمند</option>
+                            <option value="آقای نیکپور">آقای نیکپور</option>
+                            <option value="custom">سایر (ورود دستی نام)...</option>
+                        </select>
+                    </div>
+                    <div id="custom-person-box-aghaian" class="hidden">
+                        <label class="block text-xs font-bold text-slate-600 mb-1.5">نام و نام خانوادگی دستی</label>
+                        <input type="text" id="person-custom-aghaian" placeholder="مثلاً آقای کریمی" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1.5">تعداد دفعات</label>
+                        <input type="number" min="1" id="count-aghaian" value="1" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-pink-500">
+                    </div>
+                    <button type="submit" class="w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-extrabold py-3.5 rounded-2xl text-sm shadow-lg shadow-pink-500/25 transition-all">ثبت / افزایش تردد آقایان</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="panel-main" class="lg:col-span-2 space-y-6">
+            <div class="bg-white/95 backdrop-blur-md rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 p-7">
+                <h2 class="font-extrabold text-slate-900 text-lg mb-5 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    نمودار مقایسه‌ای تردد روزانه
+                </h2>
+                <div class="relative w-full h-80">
+                    <canvas id="comparisonChart"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-white/95 backdrop-blur-md rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
+                <div class="p-6 md:p-7 border-b border-slate-100 flex flex-wrap justify-between items-center gap-4">
+                    <h2 class="font-extrabold text-slate-900 text-lg">لیست ثبت‌شده‌ها</h2>
+                    <div class="flex flex-wrap items-center gap-2.5">
+                        <input type="text" id="filter-date" readonly placeholder="فیلتر تاریخ" class="bg-slate-50 border border-slate-200 rounded-2xl px-4 py-2.5 text-xs font-semibold w-32 cursor-pointer focus:ring-2 focus:ring-indigo-500">
+                        <button onclick="clearDateFilter()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all">همه روزها</button>
+                        <input type="text" id="searchInput" oninput="renderTable()" placeholder="جستجو..." class="bg-slate-50 border border-slate-200 rounded-2xl px-4 py-2.5 text-xs font-semibold w-36 focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-right">
+                        <thead>
+                            <tr class="bg-slate-50/80 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-100 font-bold">
+                                <th class="py-4 px-5">ردیف</th>
+                                <th class="py-4 px-5">تاریخ</th>
+                                <th class="py-4 px-5">نام فرد</th>
+                                <th class="py-4 px-5">سرویس</th>
+                                <th class="py-4 px-5">ثبت‌کننده</th>
+                                <th class="py-4 px-5">دفعات</th>
+                                <th class="py-4 px-5 text-center">عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recordsTableBody" class="divide-y divide-slate-100 text-xs font-medium text-slate-700"></tbody>
+                    </table>
+                </div>
+                <div id="emptyState" class="hidden py-16 text-center text-slate-400 font-semibold text-sm">اطلاعاتی یافت نشد.</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-6 left-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 bg-slate-900 text-white px-6 py-3.5 rounded-2xl shadow-2xl text-sm font-bold flex items-center gap-2.5">
+        <span id="toast-message">پیام</span>
+    </div>
+
+    <!-- Script Engine (Cloud Connected via JSONBin) -->
+    <script>
+        const CLOUD_CONFIG = {
+            binId: '6afacaf3ac6210605a8b5691',
+            apiKey: '$2a$10$XfhvIy8cDWsVO3EgDnBc6uFOEc1/vKdwpsNN2xOmwlBDihCnqELH.'
+        };
+
+        window.appState = {
+            records: [],
+            currentUserRole: null,
+            pendingLoginRole: null,
+            selectedFilterDate: '',
+            credentials: {
+                'kheradmand': { user: 'kheradmand', pass: 'k12345', name: 'آقای خردمند', service: 'banovan' },
+                'nikpour': { user: 'nikpour', pass: 'n12345', name: 'آقای نیکپور', service: 'banovan' },
+                'mokhtari': { user: 'mokhtari', pass: 'm12345', name: 'خانم مختاری', service: 'aghaian' },
+                'aminzadeh': { user: 'aminzadeh', pass: 'a12345', name: 'خانم امین‌زاده', service: 'aghaian' },
+                'sharifinejad': { user: 'sharifinejad', pass: 's12345', name: 'خانم شریفی‌نژاد (ادمین اصلی)', service: 'all' }
+            }
+        };
+
+        function loadStoredCredentials() {
+            try {
+                const stored = localStorage.getItem('soha_credentials_v2');
+                if (stored) {
+                    window.appState.credentials = JSON.parse(stored);
+                }
+            } catch(e) {}
+        }
+        loadStoredCredentials();
+
+        window.showLoginForm = function(role) {
+            window.appState.pendingLoginRole = role;
+            document.getElementById('roleSelectionView').classList.add('hidden');
+            document.getElementById('passwordFormView').classList.remove('hidden');
+            const creds = window.appState.credentials[role];
+            document.getElementById('loginTitleBadge').textContent = creds ? creds.name : role;
+        };
+
+        window.backToRoleSelection = function() {
+            document.getElementById('roleSelectionView').classList.remove('hidden');
+            document.getElementById('passwordFormView').classList.add('hidden');
+        };
+
+        window.handleAdminLogin = function(event) {
+            event.preventDefault();
+            const u = document.getElementById('loginUsername').value.trim();
+            const p = document.getElementById('loginPassword').value.trim();
+            const role = window.appState.pendingLoginRole;
+            const creds = window.appState.credentials[role];
+            if (creds && creds.user === u && creds.pass === p) {
+                loginAs(role);
+            } else {
+                document.getElementById('loginErrorMsg').textContent = 'نام کاربری یا رمز عبور اشتباه است';
+                document.getElementById('loginErrorMsg').classList.remove('hidden');
+            }
+        };
+
+        window.loginAsViewer = function() { loginAs('viewer'); };
+
+        window.loginAs = function(role) {
+            window.appState.currentUserRole = role;
+            document.getElementById('loginModal').classList.add('hidden');
+            
+            const creds = window.appState.credentials[role];
+            const roleText = role === 'viewer' ? 'همکار (مشاهده عمومی)' : (creds ? creds.name : role);
+            document.getElementById('current-user-role-text').textContent = roleText;
+
+            const sidebar = document.getElementById('sidebar-container');
+            const cardBanovan = document.getElementById('card-banovan');
+            const cardAghaian = document.getElementById('card-aghaian');
+            const mainPanel = document.getElementById('panel-main');
+            const btnChangePass = document.getElementById('btn-change-pass');
+
+            if (role === 'sharifinejad') {
+                sidebar.classList.remove('hidden');
+                cardBanovan.classList.remove('hidden');
+                cardAghaian.classList.remove('hidden');
+                document.getElementById('card-title-banovan').innerHTML = '<span class="w-3 h-3 rounded-full bg-blue-500 inline-block ml-1"></span> ثبت آمار بانوان (ادمین اصلی)';
+                document.getElementById('card-title-aghaian').innerHTML = '<span class="w-3 h-3 rounded-full bg-pink-500 inline-block ml-1"></span> ثبت آمار آقایان (ادمین اصلی)';
+                mainPanel.className = "lg:col-span-2 space-y-6";
+                btnChangePass.classList.remove('hidden');
+            } else if (role === 'kheradmand' || role === 'nikpour') {
+                sidebar.classList.remove('hidden');
+                cardBanovan.classList.remove('hidden');
+                cardAghaian.classList.add('hidden');
+                document.getElementById('card-title-banovan').innerHTML = `<span class="w-3 h-3 rounded-full bg-blue-500 inline-block ml-1"></span> ثبت آمار بانوان (${creds.name})`;
+                mainPanel.className = "lg:col-span-2 space-y-6";
+                btnChangePass.classList.add('hidden');
+            } else if (role === 'mokhtari' || role === 'aminzadeh') {
+                sidebar.classList.remove('hidden');
+                cardBanovan.classList.add('hidden');
+                cardAghaian.classList.remove('hidden');
+                document.getElementById('card-title-aghaian').innerHTML = `<span class="w-3 h-3 rounded-full bg-pink-500 inline-block ml-1"></span> ثبت آمار آقایان (${creds.name})`;
+                mainPanel.className = "lg:col-span-2 space-y-6";
+                btnChangePass.classList.add('hidden');
+            } else {
+                sidebar.classList.add('hidden');
+                mainPanel.className = "col-span-1 lg:col-span-3 space-y-6";
+                btnChangePass.classList.add('hidden');
+            }
+            renderTable();
+        };
+
+        window.logout = function() {
+            document.getElementById('loginModal').classList.remove('hidden');
+            backToRoleSelection();
+        };
+
+        window.openPasswordModal = function() {
+            document.getElementById('passwordModal').classList.remove('hidden');
+        };
+
+        window.closePasswordModal = function() {
+            document.getElementById('passwordModal').classList.add('hidden');
+        };
+
+        window.handlePasswordChangeSubmit = function(event) {
+            event.preventDefault();
+            const targetRole = document.getElementById('target-admin-role').value;
+            const newPass = document.getElementById('new-admin-password').value.trim();
+            if (window.appState.credentials[targetRole]) {
+                window.appState.credentials[targetRole].pass = newPass;
+                localStorage.setItem('soha_credentials_v2', JSON.stringify(window.appState.credentials));
+                showToast('رمز عبور با موفقیت تغییر کرد ✅');
+                closePasswordModal();
+                document.getElementById('new-admin-password').value = '';
+            }
+        };
+
+        window.handlePersonSelectChange = function(serviceType) {
+            const selectVal = document.getElementById('person-select-' + serviceType).value;
+            const customBox = document.getElementById('custom-person-box-' + serviceType);
+            if (selectVal === 'custom') {
+                customBox.classList.remove('hidden');
+            } else {
+                customBox.classList.add('hidden');
+            }
+        };
+
+        function loadRecords() {
+            $.ajax({
+                url: `https://api.jsonbin.io/v3/b/${CLOUD_CONFIG.binId}/latest`,
+                type: 'GET',
+                headers: { 'X-Master-Key': CLOUD_CONFIG.apiKey },
+                success: function(response) {
+                    window.appState.records = response.record && response.record.records ? response.record.records : [];
+                    renderTable();
+                    renderChart();
+                },
+                error: function() {
+                    showToast('خطا در دریافت اطلاعات از سرور ابری ❌');
+                }
+            });
+        }
+
+        function saveRecords() {
+            $.ajax({
+                url: `https://api.jsonbin.io/v3/b/${CLOUD_CONFIG.binId}`,
+                type: 'PUT',
+                headers: { 
+                    'X-Master-Key': CLOUD_CONFIG.apiKey,
+                    'Content-Type': 'application/json'
+                },
+                data: JSON.stringify({ records: window.appState.records }),
+                success: function() {
+                    renderTable();
+                    renderChart();
+                },
+                error: function() {
+                    showToast('خطا در ذخیره‌سازی ابری ❌');
+                }
+            });
+        }
+
+        window.handleSubmit = function(event, serviceType) {
+            event.preventDefault();
+            const role = window.appState.currentUserRole;
+            const creds = window.appState.credentials[role];
+            
+            let recorderName = '';
+            if (role === 'sharifinejad') {
+                recorderName = serviceType === 'banovan' ? 'خانم شریفی‌نژاد (بانوان)' : 'خانم شریفی‌نژاد (آقایان)';
+            } else {
+                recorderName = creds ? creds.name : 'ناشناس';
+            }
+            
+            const dateInputId = 'date-' + serviceType;
+            const selectId = 'person-select-' + serviceType;
+            const customInputId = 'person-custom-' + serviceType;
+            const countInputId = 'count-' + serviceType;
+
+            const date = document.getElementById(dateInputId).value.trim();
+            const type = serviceType === 'banovan' ? 'سرویس بانوان' : 'سرویس آقایان';
+            
+            const selectedVal = document.getElementById(selectId).value;
+            let personName = selectedVal === 'custom' ? document.getElementById(customInputId).value.trim() : selectedVal;
+
+            if (!date || !personName) {
+                showToast('لطفاً تاریخ و نام فرد را مشخص کنید ⚠️');
+                return;
+            }
+
+            const countToAdd = parseInt(document.getElementById(countInputId).value) || 1;
+            
+            const existingAny = window.appState.records.filter(r => r.date === date && r.personName.toLowerCase() === personName.toLowerCase());
+            
+            if (existingAny.length > 0) {
+                const totalExistingCount = existingAny.reduce((sum, r) => sum + r.count, 0);
+                const confirmMsg = `قبلاً برای ایشون (${personName}) در تاریخ ${date} تعداد ${totalExistingCount} مرتبه ثبت شده است. آیا مورد جدیدی (${countToAdd} مرتبه) اضافه می‌کنید؟`;
+                if (!confirm(confirmMsg)) {
+                    return;
+                }
+            }
+
+            const existingMyRecord = window.appState.records.find(r => r.date === date && r.personName.toLowerCase() === personName.toLowerCase() && r.recorder === recorderName);
+
+            if (existingMyRecord) {
+                existingMyRecord.count += countToAdd;
+            } else {
+                window.appState.records.push({ id: 'rec_' + Date.now() + Math.random().toString(36).substring(2, 5), date, recorder: recorderName, type, personName, count: countToAdd });
+            }
+
+            saveRecords();
+            showToast('با موفقیت ثبت و روی ابر ذخیره شد ✅');
+            if (selectedVal === 'custom') {
+                document.getElementById(customInputId).value = '';
+            }
+            document.getElementById(countInputId).value = '1';
+        };
+
+        window.openEditModal = function(id) {
+            const rec = window.appState.records.find(r => r.id === id);
+            if (!rec) return;
+            const role = window.appState.currentUserRole;
+            
+            if (role !== 'sharifinejad') {
+                const creds = window.appState.credentials[role];
+                const myName = creds ? creds.name : '';
+                if (!rec.recorder.includes(myName)) {
+                    return showToast('فقط رکوردهای خودتان قابل ویرایش است ❌');
+                }
+            }
+
+            document.getElementById('edit-record-id').value = rec.id;
+            document.getElementById('edit-person-name').value = rec.personName;
+            document.getElementById('edit-count').value = rec.count;
+            document.getElementById('editModal').classList.remove('hidden');
+        };
+
+        window.closeEditModal = function() {
+            document.getElementById('editModal').classList.add('hidden');
+        };
+
+        window.handleEditSubmit = function(event) {
+            event.preventDefault();
+            const id = document.getElementById('edit-record-id').value;
+            const newCount = parseInt(document.getElementById('edit-count').value) || 1;
+
+            const rec = window.appState.records.find(r => r.id === id);
+            if (rec) {
+                rec.count = newCount;
+            }
+
+            closeEditModal();
+            saveRecords();
+            showToast('رکورد با موفقیت ویرایش و بروز شد ✏️');
+        };
+
+        window.deleteRecord = function(id) {
+            const rec = window.appState.records.find(r => r.id === id);
+            if (!rec) return;
+            const role = window.appState.currentUserRole;
+
+            if (role !== 'sharifinejad') {
+                const creds = window.appState.credentials[role];
+                const myName = creds ? creds.name : '';
+                if (!rec.recorder.includes(myName)) {
+                    return showToast('فقط رکوردهای خودتان قابل حذف است ❌');
+                }
+            }
+
+            window.appState.records = window.appState.records.filter(r => r.id !== id);
+            saveRecords();
+            showToast('رکورد با موفقیت حذف شد 🗑️');
+        };
+
+        window.renderTable = function() {
+            const tbody = document.getElementById('recordsTableBody');
+            const empty = document.getElementById('emptyState');
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            const role = window.appState.currentUserRole;
+            const creds = window.appState.credentials[role];
+            const myName = creds ? creds.name : '';
+
+            const filteredRaw = window.appState.records.filter(r => 
+                (window.appState.selectedFilterDate === '' || r.date === window.appState.selectedFilterDate) && 
+                (r.personName.toLowerCase().includes(query) || r.recorder.toLowerCase().includes(query))
+            );
+
+            if (filteredRaw.length === 0) { empty.classList.remove('hidden'); return; }
+            empty.classList.add('hidden');
+
+            const groupedMap = {};
+            filteredRaw.forEach(r => {
+                const key = r.date + '_' + r.personName.toLowerCase();
+                if (!groupedMap[key]) {
+                    groupedMap[key] = {
+                        date: r.date,
+                        personName: r.personName,
+                        type: r.type,
+                        items: []
+                    };
+                }
+                groupedMap[key].items.push({ id: r.id, recorder: r.recorder, count: r.count });
+            });
+
+            const groupKeys = Object.keys(groupedMap);
+
+            groupKeys.forEach((key, idx) => {
+                const group = groupedMap[key];
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/80 transition-colors border-b border-slate-100";
+
+                const totalCount = group.items.reduce((sum, item) => sum + item.count, 0);
+
+                let recordersStr = '';
+                if (group.items.length === 1) {
+                    recordersStr = group.items[0].recorder;
+                } else {
+                    recordersStr = group.items.map(item => `${item.recorder} (${toPersianDigits(item.count)})`).join(' - ');
+                }
+
+                let actionBtnsHTML = [];
+                group.items.forEach(item => {
+                    const canModify = (role === 'sharifinejad') || (role !== 'viewer' && item.recorder.includes(myName));
+                    if (canModify) {
+                        actionBtnsHTML.push(`
+                            <span class="inline-flex items-center gap-1.5 bg-slate-100/80 px-2.5 py-1.5 rounded-xl border border-slate-200/50">
+                                <span class="text-xs font-bold text-slate-700">${item.recorder.split(' ')[0]}:</span>
+                                <button onclick="openEditModal('${item.id}')" class="text-indigo-600 hover:text-indigo-800 font-extrabold">ویرایش</button>
+                                <span class="text-slate-300">/</span>
+                                <button onclick="deleteRecord('${item.id}')" class="text-rose-500 hover:text-rose-700 font-extrabold">حذف</button>
+                            </span>
+                        `);
+                    }
+                });
+
+                tr.innerHTML = `
+                    <td class="py-4 px-5 text-slate-500 font-semibold">${toPersianDigits(idx+1)}</td>
+                    <td class="py-4 px-5 font-medium text-slate-600">${group.date}</td>
+                    <td class="py-4 px-5 text-lg font-black text-slate-950 tracking-wide">${group.personName}</td>
+                    <td class="py-4 px-5 font-medium text-slate-600">${group.type}</td>
+                    <td class="py-4 px-5 font-semibold text-slate-700">${recordersStr}</td>
+                    <td class="py-4 px-5 text-indigo-700 font-extrabold text-sm">${toPersianDigits(totalCount)} مرتبه</td>
+                    <td class="py-4 px-5 text-center">
+                        <div class="flex flex-wrap items-center justify-center gap-2">
+                            ${actionBtnsHTML.join('')}
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        };
+
+        let chartInstance = null;
+        function renderChart() {
+            const canvas = document.getElementById('comparisonChart');
+            if (!canvas || typeof Chart === 'undefined') return;
+            const map = {};
+            window.appState.records.forEach(r => {
+                if (window.appState.selectedFilterDate && r.date !== window.appState.selectedFilterDate) return;
+                if (!map[r.date]) map[r.date] = { w: 0, m: 0 };
+                if (r.type === 'سرویس بانوان') map[r.date].w += r.count;
+                else map[r.date].m += r.count;
+            });
+            const dates = Object.keys(map).sort();
+            const wData = dates.map(d => map[d].w);
+            const mData = dates.map(d => map[d].m);
+
+            if (chartInstance) chartInstance.destroy();
+            chartInstance = newChartInstance(canvas, dates, wData, mData);
+        }
+
+        function toPersianDigits(n) {
+            const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+            return n.toString().replace(/\d/g, x => persianDigits[parseInt(x)]);
+        }
+
+        function newChartInstance(canvas, dates, wData, mData) {
+            const ctx = canvas.getContext('2d');
+            
+            const gradientW = ctx.createLinearGradient(0, 0, 0, 300);
+            gradientW.addColorStop(0, '#ec4899');
+            gradientW.addColorStop(1, '#f472b6');
+
+            const gradientM = ctx.createLinearGradient(0, 0, 0, 300);
+            gradientM.addColorStop(0, '#3b82f6');
+            gradientM.addColorStop(1, '#60a5fa');
+
+            return new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: dates.length ? dates : ['بدون داده'],
+                    datasets: [
+                        { 
+                            label: 'سرویس بانوان', 
+                            data: dates.length ? wData : [0], 
+                            backgroundColor: gradientW, 
+                            borderRadius: 10,
+                            borderSkipped: false,
+                            barPercentage: 0.45,
+                            categoryPercentage: 0.55
+                        },
+                        { 
+                            label: 'سرویس آقایان', 
+                            data: dates.length ? mData : [0], 
+                            backgroundColor: gradientM, 
+                            borderRadius: 10,
+                            borderSkipped: false,
+                            barPercentage: 0.45,
+                            categoryPercentage: 0.55
+                        }
+                    ]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    animation: { duration: 1000 },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: { family: 'Vazirmatn', size: 13, weight: 'bold' },
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                                padding: 25,
+                                color: '#334155'
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            titleFont: { family: 'Vazirmatn', size: 13 },
+                            bodyFont: { family: 'Vazirmatn', size: 14, weight: 'bold' },
+                            padding: 14,
+                            cornerRadius: 12,
+                            rtl: true,
+                            textDirection: 'rtl',
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) label += ': '(context.dataset.label || '');
+                                    if (context.parsed.y !== null) label += toPersianDigits(context.parsed.y) + ' مرتبه';
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { family: 'Vazirmatn', size: 12, weight: '500' }, color: '#64748b' }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(226, 232, 240, 0.6)', borderDash: [4, 4] },
+                            ticks: {
+                                font: { family: 'Vazirmatn', size: 12, weight: '500' },
+                                color: '#64748b',
+                                precision: 0,
+                                callback: function(value) { return toPersianDigits(value); }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        window.clearDateFilter = function() {
+            window.appState.selectedFilterDate = '';
+            $('#filter-date').val('');
+            renderTable(); 
+            renderChart();
+        };
+
+        window.showToast = function(msg) {
+            const t = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = msg;
+            t.classList.remove('translate-y-24', 'opacity-0');
+            setTimeout(() => t.classList.add('translate-y-24', 'opacity-0'), 3000);
+        };
+
+        $(document).ready(function() {
+            setTimeout(function() {
+                try {
+                    const today = new persianDate().format('YYYY/MM/DD');
+                    $('#date-banovan, #date-aghaian').val(today);
+                    $('#date-banovan, #date-aghaian, #filter-date').persianDatepicker({ format: 'YYYY/MM/DD', autoClose: true, observer: true });
+                    $('#filter-date').persianDatepicker({
+                        format: 'YYYY/MM/DD', autoClose: true,
+                        onSelect: function(unix) {
+                            window.appState.selectedFilterDate = new persianDate(unix).format('YYYY/MM/DD');
+                            $('#filter-date').val(window.appState.selectedFilterDate);
+                            renderTable(); 
+                            renderChart();
+                        }
+                    });
+                } catch(e) {}
+            }, 100);
+
+            loadRecords();
+        });
+    </script>
+</body>
+</html>
